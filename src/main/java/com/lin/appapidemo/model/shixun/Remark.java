@@ -18,25 +18,53 @@ import java.util.Date;
 public class Remark {
     @Id
     @Column(name = "account")
-    /**
-     * 学号
-     */
     private String account;
     @Column(name = "remark_content")
     private String remark_content;
     @Column(name = "remark_date")
     private String remark_date;
     @Column(name = "remark_type")
-    private String remark_type;
-    private  String date;
+    private int remark_type;
 
-    public Remark(String account, String remark_content, String remark_type, String remark_date, String date) {
+    public Remark(String account, String remark_content, int remark_type,String remark_date) {
         this.account = account;
         this.remark_content = remark_content;
         this.remark_date = remark_date;
         this.remark_type = remark_type;
-        this.date = date;
-
     }
 
+
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+    }
+
+    public String getRemark_content() {
+        return remark_content;
+    }
+
+    public void setRemark_content(String remark_content) {
+        this.remark_content = remark_content;
+    }
+
+    public int getRemark_type() {
+        return remark_type;
+    }
+
+    public void setRemark_type(int remark_type) {
+        this.remark_type = remark_type;
+    }
+
+
+    public String getRemark_date() {
+        return remark_date;
+    }
+
+    public void setRemark_date(String remark_date) {
+        this.remark_date= remark_date;
+    }
 }

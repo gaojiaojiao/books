@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.lin.appapidemo.mapper.shixun.*;
 import com.lin.appapidemo.model.shixun.*;
 import com.lin.appapidemo.util.DateTimeUtil;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,25 @@ public class ExciseController {
         map.put("result","no");
         return map;
     }
-
+    @RequestMapping(value = "/Register",method = RequestMethod.POST)
+    public Map<String,Object> egister(@RequestParam("account")String account, @RequestParam("password")String password, @RequestParam("name")String name, @RequestParam("sex")String sex, @RequestParam("condi")int condi, HttpSession session){
+        Map<String,Object> map = new HashMap<>();
+        Reader reader = new Reader(account,password,name,sex, DateTimeUtil.getDate(),condi);
+        if(readerMapper.selectWholeByAccount(account)==null){
+            map.put("result","yes");
+            map.put("loginUser",reader);
+            map.put("reader",readerMapper.selectByAccount(account));
+            logger.info(reader.getName()+"成功注册");
+            nowReader=reader;
+            return map;
+            //            result.getData(null,ResponseCode.SUCCESS.getResultCode(),ResponseCode.SUCCESS.getResultMsg());
+        }else{
+            map.put("ResultMsg","注册失败");
+            map.put("resultCode","-11");
+        }
+//        session.setAttribute("register",result);
+        return map;
+    }
     @RequestMapping(value = "/getAllReaders",method = RequestMethod.POST)
     public Map<String,Object> getAllReaders(@RequestParam("account")String account,@RequestParam("currentPage")int currentPage){
         Map<String,Object> map=new HashMap<>();
@@ -87,7 +107,7 @@ public class ExciseController {
     public Map<String,Object> getAllRemark(@RequestParam("account")String account,@RequestParam("currentPage")int currentPage){
         Map<String,Object> map=new HashMap<>();
         PageHelper.startPage(currentPage,10);
-        List<Remark> list=remarkMapper.selectAllRemark();
+        List<Remark> list=remarkMapper. selectByAccount(account);
         PageInfo<Remark> pageInfo=new PageInfo<>(list);
         map.put("pageInfo",pageInfo);
         map.put("remark",list);
@@ -95,12 +115,15 @@ public class ExciseController {
     }
 
     @RequestMapping(value = "/addRemark",method = RequestMethod.POST)
-    public Map<String,Object> addRemark(@RequestParam("account")String account,@RequestParam("remark_content")String remark_content,@RequestParam("remark_date")String remark_date,@RequestParam("remark_type")String remark_type){
+    public Map<String,Object> addRemark(@RequestParam("account")String account,@RequestParam("remark_content")String remark_content,@RequestParam("remark_type")int remark_type){
         Map<String,Object> map=new HashMap<>();
-        remarkMapper.insert(new Remark(account,remark_content,remark_type,remark_date,DateTimeUtil.getDate()));
+        remarkMapper.insert(new Remark(account,remark_content,remark_type,DateTimeUtil.getDate()));
+        logger.info(nowReader.getName()+"成功添加反馈"+remark_content);
         map.put("status","ok");
         return map;
     }
+
+
     @RequestMapping(value = "/getAllBorrowRecords",method = RequestMethod.POST)
     public Map<String,Object> getAllBorrowRecords(@RequestParam("raccount")String raccount,@RequestParam("currentPage")int currentPage){
         Map<String,Object> map=new HashMap<>();
@@ -154,7 +177,6 @@ public class ExciseController {
                 logger.info(nowReader.getName()+"成功添加超级管理员"+name);
             }
             /*****************/
-            logger.info(nowReader.getName()+"成功添加读者"+name);
             map.put("status","ok");
         }
         return map;

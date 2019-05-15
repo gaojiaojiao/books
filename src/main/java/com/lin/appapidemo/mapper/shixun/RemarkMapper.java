@@ -20,5 +20,5 @@ public interface RemarkMapper extends MyMapper<Remark> {
             @Result(column = "remark_date",property = "remark_date"),
             @Result(column = "remark_type",property = "remark_type"),
     })
-    List<Remark> selectAllRemark();
+    List<Remark> selectByAccount(@Param("account") String account);
 }
